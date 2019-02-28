@@ -78,47 +78,86 @@ public class Person : MonoBehaviour {
         Destroy(gameObject);
         route = new List<string>();
     }
+    void setSpeed()
+    {
+
+    }
+
     void Update () {
-		if(CurrentLoc == StartLoc)
+
+		if(gameObject.transform.position == StartLoc)
         {
             FindBestPath(CurrentLocC,EndLocC,MainController.GetTimes(),MainController.GetAdjList());
         }
         if (route.Contains(EndLocC))
         {
+
+
             Dictionary<string, Vertice> CurrentVertices = MainController.getVertDict();
+
             Dictionary<string, float> CurrentEdges = MainController.GetSpeeds();
-            if (CurrentLoc == CurrentVertices[EndLocC].Loc*Units)
+            float k = 0.1f;
+            float distfromend = (gameObject.transform.position - CurrentVertices[EndLocC].transform.position).magnitude;
+            if (distfromend < k)
             {
                 DestroyMyself();
                 StopNumber = 0;
             }
             else
             { 
-                string tempStart = route[StopNumber];
-                string tempEnd = route[StopNumber + 1];
+                string tempStart = route[0];
+                string tempEnd = route[1];
 
 
-                if (CurrentLoc != CurrentVertices[tempEnd].Loc * Units && hasnotStarted)
+                float dist = (gameObject.transform.position - CurrentVertices[tempEnd].transform.position).magnitude;
+                //print(dist);
+
+
+                bool temp1 = (dist >= k && hasnotStarted);
+                bool temp2 = (dist < k);
+                print("one is " + temp1);
+                print("two is " + temp1);
+                if (temp1)
                 {
-                    if (CurrentEdges.ContainsKey(tempStart + tempEnd) && hasnotStarted)
-                    {
-                        CurrentEdge = tempStart + tempEnd;
-                        StartCoroutine(MoveOverSpeed(gameObject, CurrentVertices[tempEnd].Loc * Units, CurrentEdges[CurrentEdge]));
-                        hasnotStarted = false;
-                        
-                    }else
+                    CurrentEdge = tempStart + tempEnd;
+                    Vector3 direction = CurrentVertices[tempEnd].transform.position - gameObject.transform.position;
+                    gameObject.GetComponent<Rigidbody>().velocity = direction.normalized * CurrentEdges[CurrentEdge];
+                    if (!hasnotStarted)
                     {
                         FindBestPath(CurrentLocC, EndLocC, MainController.GetTimes(), MainController.GetAdjList());
                     }
+                    //if (CurrentEdges.ContainsKey(tempStart + tempEnd) && hasnotStarted)
+                    //{
+                    //    CurrentEdge = tempStart + tempEnd;
+
+                    //    print("speed i should go at is " + MainController.Speeds[CurrentEdge]);
+                    //    print("i am currently at " + gameObject.transform.position);
+                    //    print("i want to go to " + CurrentVertices[tempEnd].transform.position);
+                    //    Vector3 direction = CurrentVertices[tempEnd].transform.position - gameObject.transform.position;
+                    //    gameObject.GetComponent<Rigidbody>().velocity = direction.normalized * CurrentEdges[CurrentEdge];
+                    //    //StartCoroutine(MoveOverSpeed(gameObject, CurrentVertices[tempEnd].Loc * Units, CurrentEdges[CurrentEdge]));
+                    //    hasnotStarted = false;
+
+                    //}else
+                    //{
+                    //    FindBestPath(CurrentLocC, EndLocC, MainController.GetTimes(), MainController.GetAdjList());
+                    //}
                 }
                 //WHEN YOU REACHED THE CURRENT END OF EDGE
-                else if (CurrentLoc == CurrentVertices[tempEnd].Loc * Units)
+                else if (temp2)
                 {
-                    if (CurrentLoc != CurrentVertices[EndLocC].Loc * Units)
+                    print("test1");
+                    //if (gameObject.transform.position != CurrentVertices[EndLocC].Loc * Units)
+
+                    print("dist from end " + distfromend);
+                    
+                    if (distfromend > k)
                     {
+                        print("test2");
                         //IF YOU ARE NOT AT THE END
                         StopNumber += 1;
                         hasnotStarted = true;
+                        CurrentLocC = tempEnd;
                         FindBestPath(CurrentLocC, EndLocC, MainController.GetTimes(), MainController.GetAdjList());
                     }
 

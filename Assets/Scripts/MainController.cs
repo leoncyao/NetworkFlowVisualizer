@@ -49,12 +49,12 @@ public class MainController : MonoBehaviour {
     public int framecount;
     public int SpawnTimer;
     public float defaultspeed;
-    public int MaxPeople;
+    public int MaxPeople = 10;
     void Start () {
         defaultspeed = 5;
         SpawnTimer = 100;
         LastPersonCount = 1;
-        MaxPeople = 10;
+        //MaxPeople = 10;
         framecount = 0;
         Units = 2.0f;
 
@@ -382,7 +382,7 @@ public class MainController : MonoBehaviour {
                 Edge e = edge.GetComponent<Edge>();
                 string EdgeName = e.EdgeName;
                 int usage = currentUsages[EdgeName];
-                print("usage is " + usage);
+                //print("usage is " + usage);
                 if (usage > 0)
                 {
                     //GameObject parentOfEdge = SelectedEdgeMesh.transform.parent.gameObject;
@@ -405,7 +405,7 @@ public class MainController : MonoBehaviour {
             foreach (GameObject edge in EdgeList)
             {
                 string EdgeName = edge.GetComponent<Edge>().EdgeName;
-                print(Times[EdgeName]);
+                //print(Times[EdgeName]);
             }
 
         }
@@ -457,7 +457,6 @@ public class MainController : MonoBehaviour {
         inputSpeed = toChange;
         Instance.SetEdgeSpeed();
     }
-
 
     public static string getStart()
     {

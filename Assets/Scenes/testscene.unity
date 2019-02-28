@@ -259,6 +259,7 @@ MonoBehaviour:
   framecount: 0
   SpawnTimer: 0
   defaultspeed: 0
+  MaxPeople: 100
 --- !u!1 &709608761
 GameObject:
   m_ObjectHideFlags: 0
