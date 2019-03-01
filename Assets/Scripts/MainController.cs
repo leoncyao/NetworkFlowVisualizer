@@ -54,7 +54,6 @@ public class MainController : MonoBehaviour {
         defaultspeed = 5;
         SpawnTimer = 100;
         LastPersonCount = 1;
-        //MaxPeople = 10;
         framecount = 0;
         Units = 2.0f;
 
@@ -66,12 +65,15 @@ public class MainController : MonoBehaviour {
 
         // Start and End
         StartPoint = "A";
-        EndPoint = "Y";
+        EndPoint = "I";
 
         // For varying the size of the squares later
-        MainLength = 5f;
-        MainWidth = 5f;
-            
+        //MainLength = 5f;
+        //MainWidth = 5f;
+        MainLength = 3f;
+        MainWidth= 3f;
+
+
         Vector3 CameraPosition = new Vector3(MainLength/5f*2f * Units, MainLength / 5f * 2f * Units, -2.5f * Units);
         Camera.main.transform.position = CameraPosition;
 
@@ -83,10 +85,6 @@ public class MainController : MonoBehaviour {
         Times = new Dictionary<string, float>();
         //AdjacencyList = new Dictionary<Vector3, List<Vector3>>();
         AdjacencyList = new Dictionary<string,string>();
-
-        VerticeArray = new Vertice[5,5];
-
-        //not sure this is usefull or how i want to store edges - EdgeArray = new Edge[5, 5];
 
         SelectionX = -1;
         SelectionY = -1;
@@ -105,17 +103,17 @@ public class MainController : MonoBehaviour {
                 TempVertice.SetLoc(i, j);
                 TempVertice.Name = random[t].ToString();
                 t++;
-                VerticeArray[i, j] = TempVertice;
                 VerticeDict.Add(TempVertice.Name, TempVertice);
-
             }
         }
         foreach(string key in VerticeDict.Keys)
         {
             AdjacencyList[key] = "";
         }
-    }
 
+        MakeEdge(VerticeDict["A"], VerticeDict["I"]);
+
+    }
     void GetSelection()
     {
         if (Input.GetMouseButtonDown(0))
@@ -136,6 +134,8 @@ public class MainController : MonoBehaviour {
                 Vertice Temp = hit.collider.gameObject.GetComponent<Vertice>();
                 SelectionX = Temp.LocX;
                 SelectionY = Temp.LocY;
+
+                // SelectionX and Selection Y were initially -1, so checking if I didn't click on anything
                 if (SelectionX == -1 || SelectionY == -1)
                 {
                     print("invalid");
@@ -143,7 +143,7 @@ public class MainController : MonoBehaviour {
                 }
                 if (!SelectedVertice1)
                 {
-                    SelectedVertice1 = VerticeArray[SelectionX, SelectionY];
+                    SelectedVertice1 = Temp;
                     if (SelectedVertice1)
                     {
                         PreviousVertexMat = SelectedVertice1.GetComponent<MeshRenderer>().material;
@@ -153,7 +153,7 @@ public class MainController : MonoBehaviour {
                 }
                 else if (!SelectedVertice2)
                 {
-                    SelectedVertice2 = VerticeArray[SelectionX, SelectionY];
+                    SelectedVertice2 = Temp;
                     if (SelectedVertice2)
                     {
                         SelectedVertexMat.mainTexture = PreviousVertexMat.mainTexture;
@@ -237,14 +237,14 @@ public class MainController : MonoBehaviour {
             Times[new string(SelectedEdgeName.ToCharArray().Reverse().ToArray())] = length / inputSpeed;
         }
     }
-    void MakeEdge()
+    void MakeEdge(Vertice v1, Vertice v2)
     {
         //Instantiate the edge
-        GameObject temp = Instantiate(EdgePrefab, SelectedVertice1.Loc*Units, Quaternion.Euler(0, 0, 0));
+        GameObject temp = Instantiate(EdgePrefab, v1.Loc*Units, Quaternion.Euler(0, 0, 0));
         //Add its PREFAB to a list
         EdgeList.Add(temp);
 
-        Vector3 difference = SelectedVertice2.Loc - SelectedVertice1.Loc;
+        Vector3 difference = v2.Loc - v1.Loc;
 
         float Angle;
         float AngleDegrees;
@@ -291,16 +291,15 @@ public class MainController : MonoBehaviour {
 
         //for routes
         Edge tempEdge = temp.GetComponent<Edge>();
-        tempEdge.SetCoor(SelectedVertice1.Loc, SelectedVertice2.Loc);
+        tempEdge.SetCoor(v1.Loc, v2.Loc);
         
         float speed = defaultspeed;
         tempEdge.Speed = speed;
         
 
-        string EdgeName = SelectedVertice1.Name + SelectedVertice2.Name;
+        string EdgeName = v1.Name + v2.Name;
         tempEdge.EdgeName = EdgeName;
-        string EdgeNameReversed = SelectedVertice2.Name + SelectedVertice1.Name;
-
+        string EdgeNameReversed = v2.Name + v1.Name;
         tempEdge.Speed = speed;
         Speeds.Add(EdgeName, speed);
         Speeds.Add(EdgeNameReversed, speed);
@@ -308,23 +307,23 @@ public class MainController : MonoBehaviour {
         tempEdge.Time = time;
         Times.Add(EdgeName, time);
         Times.Add(EdgeNameReversed, time);
-        string key = SelectedVertice1.Name;
+        string key = v1.Name;
         if (!AdjacencyList.ContainsKey(key))
         {
-            AdjacencyList.Add(key, SelectedVertice2.Name);
+            AdjacencyList.Add(key, v2.Name);
         }
         else
         {
-            AdjacencyList[key] += SelectedVertice2.Name;
+            AdjacencyList[key] += v2.Name;
         }
-        key = SelectedVertice2.Name;
+        key = v2.Name;
         if (!AdjacencyList.ContainsKey(key))
         {
-            AdjacencyList.Add(key, SelectedVertice1.Name);
+            AdjacencyList.Add(key, v1.Name);
         }
         else
         {
-            AdjacencyList[key] += SelectedVertice1.Name;
+            AdjacencyList[key] += v1.Name;
         }
 
         /*
@@ -332,14 +331,14 @@ public class MainController : MonoBehaviour {
         Vector3 key = SelectedVertice1.Loc;
         if (!AdjacencyList.ContainsKey(key))
             AdjacencyList.Add(key, new List<Vector3>());
-        AdjacencyList[key].Add(SelectedVertice2.Loc);
+        AdjacencyList[key].Add(v2.Loc);
         */
 
         //might want to put this somewhere else
-        SelectedVertice1.GetComponent<MeshRenderer>().material = PreviousVertexMat;
-        SelectedVertice2.GetComponent<MeshRenderer>().material = PreviousVertexMat;
-        SelectedVertice1 = null;
-        SelectedVertice2 = null;
+        //v1.GetComponent<MeshRenderer>().material = PreviousVertexMat;
+        //v2.GetComponent<MeshRenderer>().material = PreviousVertexMat;
+        //v1 = null;
+        //v2 = null;
         SelectionX = -1;
         SelectionY = -1;
     }
@@ -361,12 +360,23 @@ public class MainController : MonoBehaviour {
             SpawnPerson();
         }
         GetSelection();
+
         if(SelectedVertice1 && SelectedVertice2)
         {
-            MakeEdge();
+            if (SelectedVertice1 == SelectedVertice2)
+            {
+                print("No Loops Please");
+            }
+            else
+            {
+                MakeEdge(SelectedVertice1, SelectedVertice2);
+            }
+            SelectedVertice1.GetComponent<MeshRenderer>().material = PreviousVertexMat;
+            SelectedVertice2.GetComponent<MeshRenderer>().material = PreviousVertexMat;
+            SelectedVertice1 = null;
+            SelectedVertice2 = null;
         }
         framecount = Time.frameCount;
-
         if (framecount % SpawnTimer == 0 && LastPersonCount < MaxPeople)
         {
             SpawnPerson();
@@ -382,35 +392,22 @@ public class MainController : MonoBehaviour {
                 Edge e = edge.GetComponent<Edge>();
                 string EdgeName = e.EdgeName;
                 int usage = currentUsages[EdgeName];
-                //print("usage is " + usage);
                 if (usage > 0)
                 {
-                    //GameObject parentOfEdge = SelectedEdgeMesh.transform.parent.gameObject;
-
                     float length = edge.transform.localScale.x;
 
                     float newSpeed = e.Speed / usage;
 
                     Speeds[EdgeName] = newSpeed;
                     Speeds[new string(EdgeName.ToCharArray().Reverse().ToArray())] = newSpeed;
-                    float val = length / Speeds[EdgeName] * (usage);
-
-                    //print(string.Format("Before I changed, Times[{0}] was {1}", EdgeName, Times[EdgeName]));
+                    float val = length / newSpeed;
 
                     Times[EdgeName] = val;
                     Times[new string(EdgeName.ToCharArray().Reverse().ToArray())] = val;
                 }
             }
-
-            foreach (GameObject edge in EdgeList)
-            {
-                string EdgeName = edge.GetComponent<Edge>().EdgeName;
-                //print(Times[EdgeName]);
-            }
-
         }
     }
-
     Dictionary<string, int> getCurrentUsages()
     {
         Dictionary<string, int> currentUsages = new Dictionary<string, int>();
@@ -423,41 +420,23 @@ public class MainController : MonoBehaviour {
         foreach (GameObject person in PersonList)
         {
             Person p = person.GetComponent<Person>();
-            //print(p.getCurrentEdge());
             string edge = p.getCurrentEdge();
             if (edge != "")
             {
                 currentUsages[edge] += 1;
             }
         }
-        //string word = "";
-        //foreach (KeyValuePair<string, int> usage in currentUsages)
-        //{
-        //    if (usage.Value > 0)
-        //    {
-        //        word += usage;
-        //    }
-        //}
-        //print(word);
         return currentUsages;
     }
+    public void config1()
+    {
 
-
-    //public List<string> getPeoplesCurrentEdges()
-    //{
-    //    List<>
-    //    foreach (GameObject person in PersonList)
-    //    {
-            
-    //    }
-    //}
-
+    }
     public static void getInput(float toChange)
     {
         inputSpeed = toChange;
         Instance.SetEdgeSpeed();
     }
-
     public static string getStart()
     {
         return StartPoint;
@@ -486,5 +465,4 @@ public class MainController : MonoBehaviour {
     {
         return VerticeDict;
     }
-
 }
