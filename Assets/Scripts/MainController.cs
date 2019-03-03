@@ -10,28 +10,25 @@ public class MainController : MonoBehaviour {
     public float Units;
 
     public GameObject VerticePrefab, EdgePrefab, PersonPrefab;
-    public List<GameObject> VerticeList;
-    public List<GameObject> EdgeList;
-    public static List<GameObject> PersonList;
-    public static int LastPersonCount;
-    //i think storing endpoints as strings is easier. though i can only have 26 damn(there better be a
-    // goddamn workaround for that
-    //public Dictionary<Vector3,List<Vector3>> AdjacencyList;
-    public static Dictionary<string, string> AdjacencyList;
 
-
+    // Convenient to keep track of gameobjects and vertices seperately
+    public List<GameObject> VerticeList, EdgeList;
+    public static Dictionary<string, Vertice> VerticeDict;
+    
+    // Edge Properties
     // Keeps track of the speed of the edges, which can change based on user input
     public static Dictionary<string, float> Speeds;
-
     // Keeps track of time it takes the edges (which is the length of the edge divided by its speed)
     public static Dictionary<string, float> Times;
 
-    //i think its better to st
-    public Vertice[,] VerticeArray;
-    public static Dictionary<string, Vertice> VerticeDict;
-    //public Edge[,] EdgeArray;
+    //i think storing endpoints as strings is easier. though i can only have 26 damn
+    public static Dictionary<string, string> AdjacencyList;
 
-    public float MainLength, MainWidth;
+
+    public static List<GameObject> PersonList;
+    public static int LastPersonCount;
+
+    public int MainLength, MainWidth;
     public int SelectionX, SelectionY;
 
     public GameObject SelectedEdgeMesh;
@@ -40,11 +37,8 @@ public class MainController : MonoBehaviour {
 
     public Material SelectedVertexMat, SelectedEdgeMat, PreviousVertexMat,PreviousEdgeMat;
 
-    public static string StartPoint;
-    public static string EndPoint;
+    public static string StartPoint, EndPoint;
 
-    public Vector3 StartLoc;
-    public Vector3 EndLoc;
     public static float inputSpeed;
     public int framecount;
     public int SpawnTimer;
@@ -57,10 +51,6 @@ public class MainController : MonoBehaviour {
         framecount = 0;
         Units = 2.0f;
 
-        StartLoc = new Vector3(0, 0, 0);
-        // this is extraneous below
-        EndLoc = new Vector3(10, 10);
-
         Instance = this;
 
         // Start and End
@@ -70,8 +60,8 @@ public class MainController : MonoBehaviour {
         // For varying the size of the squares later
         //MainLength = 5f;
         //MainWidth = 5f;
-        MainLength = 3f;
-        MainWidth= 3f;
+        MainLength = 3;
+        MainWidth= 3;
 
 
         Vector3 CameraPosition = new Vector3(MainLength/5f*2f * Units, MainLength / 5f * 2f * Units, -2.5f * Units);
@@ -83,7 +73,6 @@ public class MainController : MonoBehaviour {
         PersonList = new List<GameObject>();
         Speeds = new Dictionary<string, float>();
         Times = new Dictionary<string, float>();
-        //AdjacencyList = new Dictionary<Vector3, List<Vector3>>();
         AdjacencyList = new Dictionary<string,string>();
 
         SelectionX = -1;
@@ -111,7 +100,7 @@ public class MainController : MonoBehaviour {
             AdjacencyList[key] = "";
         }
 
-        MakeEdge(VerticeDict["A"], VerticeDict["I"]);
+        //MakeEdge(VerticeDict["A"], VerticeDict["I"]);
 
     }
     void GetSelection()
@@ -125,12 +114,12 @@ public class MainController : MonoBehaviour {
             }
             else if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 25.0f, LayerMask.GetMask("Vertices"), QueryTriggerInteraction.Collide))
             {
-                if (SelectedEdgeMesh)
-                {
-                    SelectedEdgeMesh.GetComponent<MeshRenderer>().material = PreviousEdgeMat;
-                    SelectedEdgeMesh = null;
-                    SelectedEdge = null;
-                }
+                //if (SelectedEdgeMesh)
+                //{
+                //    SelectedEdgeMesh.GetComponent<MeshRenderer>().material = PreviousEdgeMat;
+                //    SelectedEdgeMesh = null;
+                //    SelectedEdge = null;
+                //}
                 Vertice Temp = hit.collider.gameObject.GetComponent<Vertice>();
                 SelectionX = Temp.LocX;
                 SelectionY = Temp.LocY;
@@ -351,7 +340,7 @@ public class MainController : MonoBehaviour {
     }
     void SpawnPerson()
     {
-        GameObject temp= Instantiate(PersonPrefab, StartLoc, Quaternion.Euler(0, 0, 0));
+        GameObject temp= Instantiate(PersonPrefab, VerticeDict[StartPoint].Loc, Quaternion.Euler(0, 0, 0));
         PersonList.Add(temp);
     }
 	void Update () {
@@ -430,7 +419,7 @@ public class MainController : MonoBehaviour {
     }
     public void config1()
     {
-
+        //MakeEdge(VerticeDict[])
     }
     public static void getInput(float toChange)
     {
