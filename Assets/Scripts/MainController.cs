@@ -35,7 +35,7 @@ public class MainController : MonoBehaviour {
     public Vertice SelectedVertice1,SelectedVertice2;
     public Edge SelectedEdge;
 
-    public Material SelectedVertexMat, SelectedEdgeMat, PreviousVertexMat,PreviousEdgeMat;
+    public Material SelectedVertexMat, SelectedEdgeMat, PreviousVertexMat, PreviousEdgeMat;
 
     public static string StartPoint, EndPoint;
 
@@ -100,7 +100,7 @@ public class MainController : MonoBehaviour {
             AdjacencyList[key] = "";
         }
 
-        //MakeEdge(VerticeDict["A"], VerticeDict["I"]);
+        MakeEdge(VerticeDict["A"], VerticeDict["I"]);
 
     }
     void GetSelection()
@@ -288,14 +288,12 @@ public class MainController : MonoBehaviour {
 
         string EdgeName = v1.Name + v2.Name;
         tempEdge.EdgeName = EdgeName;
-        string EdgeNameReversed = v2.Name + v1.Name;
         tempEdge.Speed = speed;
         Speeds.Add(EdgeName, speed);
-        Speeds.Add(EdgeNameReversed, speed);
         float time = length / speed;
         tempEdge.Time = time;
         Times.Add(EdgeName, time);
-        Times.Add(EdgeNameReversed, time);
+
         string key = v1.Name;
         if (!AdjacencyList.ContainsKey(key))
         {
@@ -305,6 +303,11 @@ public class MainController : MonoBehaviour {
         {
             AdjacencyList[key] += v2.Name;
         }
+
+
+        string EdgeNameReversed = v2.Name + v1.Name;
+        Speeds.Add(EdgeNameReversed, speed);
+        Times.Add(EdgeNameReversed, time);
         key = v2.Name;
         if (!AdjacencyList.ContainsKey(key))
         {

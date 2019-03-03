@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class Person : MonoBehaviour {
     public List<string> route;
-    //purely for testing when route changes
-    public List<string> routeCopy;
-    public List<string> stopNames;
-
-    public Vector3 StartLoc, CurrentLoc;
-
-    public string StartLocC, CurrentLocC, EndLocC;
+    // names of respective vertice
+    public string StartLoc, CurrentLoc, EndLoc;
     public bool hasnotStarted;
 
     public int StopNumber;
@@ -21,16 +16,10 @@ public class Person : MonoBehaviour {
         SpeedConstant = 100;
         Units = MainController.Instance.Units;
         hasnotStarted = true;
-        stopNames = new List<string>();
-
-        StopNumber = 0;
-        StartLoc = Vector3.zero;
-        StartLocC = MainController.getStart();
-        CurrentLocC = StartLocC;
-        EndLocC = MainController.getEnd();
+        StartLoc = MainController.getStart();
         CurrentLoc = StartLoc;
+        EndLoc = MainController.getEnd();
         route = new List<string>();
-        routeCopy = route;
     }
     //public IEnumerator MoveOverSpeed(GameObject objectToMove, Vector3 end, float speed)
     //{
@@ -53,16 +42,16 @@ public class Person : MonoBehaviour {
     void Update () {
         Dictionary<string, Vertice> CurrentVertices = MainController.getVertDict();
         //if(gameObject.transform.position == StartLoc)
-        if (gameObject.transform.position == MainController.getVertDict()[StartLocC].transform.position)
+        if (gameObject.transform.position == MainController.getVertDict()[StartLoc].transform.position)
         {
-            FindBestPath(CurrentLocC,EndLocC,MainController.GetTimes(),MainController.GetAdjList());
+            FindBestPath(CurrentLoc,EndLoc,MainController.GetTimes(),MainController.GetAdjList());
         }
-        if (route.Contains(EndLocC))
+        if (route.Contains(EndLoc))
         {
 
             Dictionary<string, float> CurrentEdges = MainController.GetSpeeds();
             float k = 0.1f;
-            float distfromend = (gameObject.transform.position - CurrentVertices[EndLocC].transform.position).magnitude;
+            float distfromend = (gameObject.transform.position - CurrentVertices[EndLoc].transform.position).magnitude;
             if (distfromend < k)
             {
                 DestroyMyself();
@@ -73,9 +62,7 @@ public class Person : MonoBehaviour {
                 string tempStart = route[0];
                 string tempEnd = route[1];
 
-
                 float dist = (gameObject.transform.position - CurrentVertices[tempEnd].transform.position).magnitude;
-
 
                 bool temp1 = (dist >= k && hasnotStarted);
                 bool temp2 = (dist < k);
@@ -86,7 +73,7 @@ public class Person : MonoBehaviour {
                     gameObject.GetComponent<Rigidbody>().velocity = direction.normalized * CurrentEdges[CurrentEdge];
                     if (!hasnotStarted)
                     {
-                        FindBestPath(CurrentLocC, EndLocC, MainController.GetTimes(), MainController.GetAdjList());
+                        FindBestPath(CurrentLoc, EndLoc, MainController.GetTimes(), MainController.GetAdjList());
                     }
                     //if (CurrentEdges.ContainsKey(tempStart + tempEnd) && hasnotStarted)
                     //{
@@ -102,7 +89,7 @@ public class Person : MonoBehaviour {
 
                     //}else
                     //{
-                    //    FindBestPath(CurrentLocC, EndLocC, MainController.GetTimes(), MainController.GetAdjList());
+                    //    FindBestPath(CurrentLoc, EndLoc, MainController.GetTimes(), MainController.GetAdjList());
                     //}
                 }
                 //WHEN YOU REACHED THE CURRENT END OF EDGE
@@ -112,8 +99,8 @@ public class Person : MonoBehaviour {
                     {
                         //IF YOU ARE NOT AT THE END
                         hasnotStarted = true;
-                        CurrentLocC = tempEnd;
-                        FindBestPath(CurrentLocC, EndLocC, MainController.GetTimes(), MainController.GetAdjList());
+                        CurrentLoc = tempEnd;
+                        FindBestPath(CurrentLoc, EndLoc, MainController.GetTimes(), MainController.GetAdjList());
                     }
 
                 }
