@@ -7,14 +7,10 @@ public class Person : MonoBehaviour {
     //purely for testing when route changes
     public List<string> routeCopy;
     public List<string> stopNames;
-    
-    public Vector3 StartLoc;
-    public Vector3 CurrentLoc;
-    public Vector3 EndLoc;
 
-    public string StartLocC;
-    public string CurrentLocC;
-    public string EndLocC;
+    public Vector3 StartLoc, CurrentLoc;
+
+    public string StartLocC, CurrentLocC, EndLocC;
     public bool hasnotStarted;
 
     public int StopNumber;
@@ -36,17 +32,17 @@ public class Person : MonoBehaviour {
         route = new List<string>();
         routeCopy = route;
     }
-    public IEnumerator MoveOverSpeed(GameObject objectToMove, Vector3 end, float speed)
-    {
-        //look up where i got the code from
-        // speed should be 1 unit per second
-        while (gameObject.transform.position != end)
-        {
-            objectToMove.transform.position = Vector3.MoveTowards(objectToMove.transform.position, end, speed/SpeedConstant);
-            CurrentLoc = objectToMove.transform.position;
-            yield return new WaitForEndOfFrame();
-        }
-    }
+    //public IEnumerator MoveOverSpeed(GameObject objectToMove, Vector3 end, float speed)
+    //{
+    //    //look up where i got the code from
+    //    // speed should be 1 unit per second
+    //    while (gameObject.transform.position != end)
+    //    {
+    //        objectToMove.transform.position = Vector3.MoveTowards(objectToMove.transform.position, end, speed/SpeedConstant);
+    //        CurrentLoc = objectToMove.transform.position;
+    //        yield return new WaitForEndOfFrame();
+    //    }
+    //}
     void DestroyMyself()
     {
         Destroy(gameObject.GetComponent<Person>());
@@ -55,14 +51,15 @@ public class Person : MonoBehaviour {
         route = new List<string>();
     }
     void Update () {
-
-		if(gameObject.transform.position == StartLoc)
+        Dictionary<string, Vertice> CurrentVertices = MainController.getVertDict();
+        //if(gameObject.transform.position == StartLoc)
+        if (gameObject.transform.position == MainController.getVertDict()[StartLocC].transform.position)
         {
             FindBestPath(CurrentLocC,EndLocC,MainController.GetTimes(),MainController.GetAdjList());
         }
         if (route.Contains(EndLocC))
         {
-            Dictionary<string, Vertice> CurrentVertices = MainController.getVertDict();
+
             Dictionary<string, float> CurrentEdges = MainController.GetSpeeds();
             float k = 0.1f;
             float distfromend = (gameObject.transform.position - CurrentVertices[EndLocC].transform.position).magnitude;
@@ -111,14 +108,8 @@ public class Person : MonoBehaviour {
                 //WHEN YOU REACHED THE CURRENT END OF EDGE
                 else if (temp2)
                 {
-                    //print("test1");
-                    //if (gameObject.transform.position != CurrentVertices[EndLocC].Loc * Units)
-
-                    //print("dist from end " + distfromend);
-                    
                     if (distfromend > k)
                     {
-                        print("test2");
                         //IF YOU ARE NOT AT THE END
                         hasnotStarted = true;
                         CurrentLocC = tempEnd;

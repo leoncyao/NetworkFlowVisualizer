@@ -21,4 +21,9 @@ public class Vertice : MonoBehaviour {
 	void Update () {
 		
 	}
+    public Vector3 getLoc()
+    {
+        return Loc;
+    }
+
 }
